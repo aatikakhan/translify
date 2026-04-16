@@ -1,0 +1,115 @@
+Translify: GenAI-Based PDF Language Translator on AWS
+CCL Mini Project Report
+
+1. Abstract
+Translify is a cloud-based web application that translates PDF documents from multiple languages into English using the Gemini API. The system is deployed on Amazon EC2, stores uploaded and translated files in Amazon S3, and manages user and document metadata in Amazon RDS. The project demonstrates practical cloud integration, web deployment, secure data handling, and functional Generative AI usage in an end-to-end workflow.
+
+2. Problem Statement
+Users often receive documents in languages they cannot understand. Manual translation is time-consuming and traditional tools may not preserve document context well. There is a need for a cloud-hosted solution that can accept PDF files, translate the content accurately into English, and provide downloadable translated documents.
+
+3. Objectives
+- Build a web application for PDF upload and translation.
+- Integrate multiple cloud services (EC2, S3, RDS).
+- Use Generative AI (Gemini API) to translate text into English.
+- Store original and translated files securely.
+- Maintain user data and translation metadata in a relational database.
+- Deploy and demonstrate a fully working cloud architecture.
+
+4. System Architecture
+Components:
+- Frontend + Backend (EC2): FastAPI web application
+- Storage (S3): original and translated PDFs
+- Database (RDS): users and metadata
+- GenAI (Gemini API): language translation
+
+Workflow:
+1) User logs in and uploads a PDF.
+2) Original file is stored in S3.
+3) Text is extracted from PDF.
+4) Text is translated to English using Gemini.
+5) New translated PDF is generated.
+6) Translated PDF is stored in S3.
+7) Metadata is saved in RDS.
+8) User downloads translated file.
+
+5. Cloud Services Used
+- Amazon EC2: host and run web application
+- Amazon S3: secure object storage
+- Amazon RDS: relational database for user and document records
+- Gemini API: translation engine for document text
+
+6. Implementation Details
+Technology stack:
+- Python FastAPI
+- SQLAlchemy
+- boto3
+- pdfplumber
+- reportlab
+- session-based authentication
+
+Major modules:
+- app/routes/web.py
+- app/services/pdf_service.py
+- app/services/gemini_service.py
+- app/services/s3_service.py
+- app/models.py
+
+7. Database Schema
+Table: users
+- id
+- full_name
+- email
+- password_hash
+- created_at
+
+Table: documents
+- id
+- user_id
+- original_filename
+- source_language
+- status
+- original_s3_key
+- translated_s3_key
+- translated_filename
+- error_message
+- created_at
+- updated_at
+
+8. Deployment Process
+1) Create EC2, S3, and RDS resources.
+2) Configure security groups and IAM permissions.
+3) Install dependencies on EC2.
+4) Configure .env with AWS, DB, and Gemini details.
+5) Run FastAPI with systemd.
+6) Setup Nginx reverse proxy.
+7) Validate live workflow.
+
+9. Working Demonstration
+During evaluation:
+- login and upload non-English PDF
+- translate to English
+- download translated PDF
+- verify original and translated files in S3
+- verify metadata in RDS
+- explain full end-to-end architecture and flow
+
+10. Challenges and Solutions
+- Large document translation limits solved by chunking input text.
+- Development and cloud differences handled through local/S3 storage switch.
+- Stable deployment achieved with systemd and Nginx.
+
+11. Conclusion
+Translify fulfills core CCL mini-project requirements by integrating multiple cloud services with Generative AI in a practical application. The system is deployable, demonstrable, and scalable for future improvements.
+
+12. Future Scope
+- Add output language options beyond English
+- Improve layout preservation in translated PDFs
+- Add async queue for large documents
+- Build analytics and admin dashboard
+
+13. References
+- AWS EC2 Documentation: https://docs.aws.amazon.com/ec2/
+- AWS S3 Documentation: https://docs.aws.amazon.com/s3/
+- AWS RDS Documentation: https://docs.aws.amazon.com/rds/
+- FastAPI Documentation: https://fastapi.tiangolo.com/
+- Gemini API Documentation: https://ai.google.dev/

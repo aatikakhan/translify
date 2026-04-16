@@ -1,0 +1,170 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{longtable}
+
+\title{Translify: GenAI-Based PDF Language Translator on AWS}
+\author{CCL Mini Project Report}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Translify is a cloud-based web application that translates PDF documents from multiple languages into English using the Gemini API. The system is deployed on Amazon EC2, stores uploaded and translated files in Amazon S3, and manages user and document metadata in Amazon RDS. The project demonstrates practical cloud integration, web deployment, secure data handling, and functional Generative AI usage in an end-to-end workflow.
+\end{abstract}
+
+\section{Problem Statement}
+Users often receive documents in languages they cannot understand. Manual translation is time-consuming and traditional tools may not preserve document context well. There is a need for a cloud-hosted solution that can accept PDF files, translate the content accurately into English, and provide downloadable translated documents.
+
+\section{Objectives}
+\begin{itemize}[leftmargin=*]
+    \item Build a web application for PDF upload and translation.
+    \item Integrate multiple cloud services (EC2, S3, RDS).
+    \item Use Generative AI (Gemini API) to translate text into English.
+    \item Store original and translated files securely.
+    \item Maintain user data and translation metadata in a relational database.
+    \item Deploy and demonstrate a fully working cloud architecture.
+\end{itemize}
+
+\section{System Architecture}
+\subsection*{Components}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Frontend + Backend (EC2):} FastAPI-based web application.
+    \item \textbf{Storage (S3):} Stores original PDFs and translated PDFs.
+    \item \textbf{Database (RDS):} Stores users, document details, status, and file keys.
+    \item \textbf{GenAI Service (Gemini API):} Performs translation to English.
+\end{itemize}
+
+\subsection*{Workflow}
+\begin{enumerate}[leftmargin=*]
+    \item User logs in and uploads a PDF.
+    \item Application stores original file in S3.
+    \item Text is extracted from the uploaded PDF.
+    \item Extracted text is sent to Gemini API for translation.
+    \item Translated English text is converted into a new PDF.
+    \item Translated PDF is stored in S3.
+    \item Metadata and status are updated in RDS.
+    \item User downloads the translated PDF.
+\end{enumerate}
+
+\section{Cloud Services Used}
+\subsection*{Amazon EC2}
+Used to host and run the FastAPI application and serve web traffic through Nginx.
+
+\subsection*{Amazon S3}
+Used as secure object storage for:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{originals/} -- uploaded source PDFs
+    \item \texttt{translated/} -- generated translated PDFs
+\end{itemize}
+
+\subsection*{Amazon RDS}
+Used to store structured data:
+\begin{itemize}[leftmargin=*]
+    \item user details
+    \item document metadata
+    \item translation status
+    \item storage object keys
+\end{itemize}
+
+\subsection*{Gemini API}
+Used to translate extracted document text into accurate English while preserving content structure.
+
+\section{Implementation Details}
+\subsection*{Technology Stack}
+\begin{itemize}[leftmargin=*]
+    \item Backend: FastAPI (Python)
+    \item Database ORM: SQLAlchemy
+    \item PDF Text Extraction: pdfplumber
+    \item PDF Generation: reportlab
+    \item Cloud SDK: boto3
+    \item Authentication: Session-based login
+\end{itemize}
+
+\subsection*{Key Modules}
+\begin{itemize}[leftmargin=*]
+    \item \texttt{app/routes/web.py}: Main routes for login, upload, translate, and download.
+    \item \texttt{app/services/pdf\_service.py}: PDF extraction and PDF generation.
+    \item \texttt{app/services/gemini\_service.py}: Gemini model interaction.
+    \item \texttt{app/services/s3\_service.py}: S3 (or local fallback) read/write.
+    \item \texttt{app/models.py}: \texttt{users} and \texttt{documents} entities.
+\end{itemize}
+
+\section{Database Schema}
+\subsection*{Table: users}
+\begin{itemize}[leftmargin=*]
+    \item id (Primary Key)
+    \item full\_name
+    \item email (Unique)
+    \item password\_hash
+    \item created\_at
+\end{itemize}
+
+\subsection*{Table: documents}
+\begin{itemize}[leftmargin=*]
+    \item id (Primary Key)
+    \item user\_id (Foreign Key)
+    \item original\_filename
+    \item source\_language
+    \item status
+    \item original\_s3\_key
+    \item translated\_s3\_key
+    \item translated\_filename
+    \item error\_message
+    \item created\_at
+    \item updated\_at
+\end{itemize}
+
+\section{Deployment Process}
+\begin{enumerate}[leftmargin=*]
+    \item Provision EC2, S3 bucket, and RDS instance.
+    \item Configure inbound rules and IAM permissions.
+    \item Clone project on EC2 and install dependencies.
+    \item Configure \texttt{.env} with AWS, DB, and Gemini credentials.
+    \item Start FastAPI app via systemd.
+    \item Configure Nginx reverse proxy on port 80.
+    \item Validate live public URL workflow.
+\end{enumerate}
+
+\section{Working Demonstration}
+During evaluation, the following is demonstrated live:
+\begin{itemize}[leftmargin=*]
+    \item User authentication and PDF upload
+    \item Automatic translation to English
+    \item Download of translated PDF
+    \item Presence of original and translated files in S3
+    \item Corresponding metadata records in RDS
+    \item End-to-end system workflow explanation
+\end{itemize}
+
+\section{Challenges and Solutions}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Large PDF translation limits:} Solved by chunking extracted text before API calls.
+    \item \textbf{Different environment readiness:} Added local storage mode for development and S3 mode for production.
+    \item \textbf{Deployment stability:} Used systemd and Nginx for reliable process management.
+\end{itemize}
+
+\section{Conclusion}
+Translify successfully demonstrates a complete cloud-native mini project with real-world utility. It integrates AWS infrastructure services and Generative AI to produce an effective multilingual document translation system. The project fulfills key CCL expectations: cloud service integration, deployable architecture, and live functional demonstration.
+
+\section{Future Scope}
+\begin{itemize}[leftmargin=*]
+    \item Add multi-language output (not only English)
+    \item Preserve complex layout and embedded images in translated PDF
+    \item Add asynchronous job queue for very large files
+    \item Add admin analytics dashboard
+\end{itemize}
+
+\section{References}
+\begin{itemize}[leftmargin=*]
+    \item AWS EC2 Documentation: \url{https://docs.aws.amazon.com/ec2/}
+    \item AWS S3 Documentation: \url{https://docs.aws.amazon.com/s3/}
+    \item AWS RDS Documentation: \url{https://docs.aws.amazon.com/rds/}
+    \item FastAPI Documentation: \url{https://fastapi.tiangolo.com/}
+    \item Google Gemini API Documentation: \url{https://ai.google.dev/}
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+translify_dev.db
+local_storage/

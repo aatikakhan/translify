@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="card">
+    <div class="row">
+        <h2>Dashboard</h2>
+        <a class="btn secondary" href="/logout">Logout</a>
+    </div>
+    <p>Hi {{ user.full_name }}, upload a PDF and translate it to English.</p>
+
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    {% if success %}<p class="success">{{ success }}</p>{% endif %}
+
+    <form method="post" action="/translate" enctype="multipart/form-data">
+        <label>Source Language (or type auto)</label>
+        <input type="text" name="source_language" value="auto" required>
+
+        <label>Select PDF</label>
+        <input type="file" name="pdf_file" accept="application/pdf" required>
+
+        <button type="submit" class="btn">Translate PDF</button>
+    </form>
+</section>
+
+<section class="card">
+    <h3>Translation History</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Language</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td>{{ doc.original_filename }}</td>
+                <td>{{ doc.source_language }}</td>
+                <td>
+                    {{ doc.status }}
+                    {% if doc.status == "failed" and doc.error_message %}
+                        <div class="error mini">{{ doc.error_message }}</div>
+                    {% endif %}
+                </td>
+                <td>{{ doc.created_at }}</td>
+                <td>
+                    {% if doc.status == "completed" %}
+                        <a href="/download/{{ doc.id }}">Download</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No documents yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
