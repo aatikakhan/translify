@@ -28,6 +28,7 @@ class Settings:
     aws_s3_bucket: str = os.getenv("AWS_S3_BUCKET", "")
     aws_access_key_id: str = os.getenv("AWS_ACCESS_KEY_ID", "")
     aws_secret_access_key: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
+    aws_session_token: str = os.getenv("AWS_SESSION_TOKEN", "")
 
     gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
     gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
