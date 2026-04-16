@@ -25,7 +25,8 @@ def current_user(request: Request, db: Session) -> User | None:
         guest = User(
             full_name="Guest User",
             email="guest@translify.local",
-            password_hash=hash_password("guest-account-not-used"),
+            # In open mode we don't authenticate this account; avoid bcrypt dependency here.
+            password_hash="auth_disabled_guest",
         )
         db.add(guest)
         db.commit()
