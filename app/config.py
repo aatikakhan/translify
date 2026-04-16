@@ -18,6 +18,7 @@ class Settings:
     app_env: str = os.getenv("APP_ENV", "development")
     app_debug: bool = _to_bool(os.getenv("APP_DEBUG"), default=False)
     secret_key: str = os.getenv("SECRET_KEY", "dev-secret-change-me")
+    auth_disabled: bool = _to_bool(os.getenv("AUTH_DISABLED"), default=False)
 
     database_url: str = os.getenv(
         "DATABASE_URL", "sqlite:///./translify_dev.db"

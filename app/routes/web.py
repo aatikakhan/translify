@@ -6,6 +6,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.auth import get_user_by_email, hash_password, verify_password
+from app.config import settings
 from app.database import get_db
 from app.models import Document, User
 from app.services.pdf_service import build_pdf_from_text, extract_text_from_pdf
@@ -17,6 +18,20 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 def current_user(request: Request, db: Session) -> User | None:
+    if settings.auth_disabled:
+        guest = db.query(User).filter(User.email == "guest@translify.local").first()
+        if guest:
+            return guest
+        guest = User(
+            full_name="Guest User",
+            email="guest@translify.local",
+            password_hash=hash_password("guest-account-not-used"),
+        )
+        db.add(guest)
+        db.commit()
+        db.refresh(guest)
+        return guest
+
     user_id = request.session.get("user_id")
     if not user_id:
         return None
@@ -25,7 +40,7 @@ def current_user(request: Request, db: Session) -> User | None:
 
 @router.get("/")
 def home(request: Request):
-    if request.session.get("user_id"):
+    if settings.auth_disabled or request.session.get("user_id"):
         return RedirectResponse(url="/dashboard", status_code=302)
     return templates.TemplateResponse("index.html", {"request": request})
 
