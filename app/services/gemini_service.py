@@ -1,4 +1,12 @@
-import google.generativeai as genai
+import warnings
+
+with warnings.catch_warnings():
+    warnings.filterwarnings(
+        "ignore",
+        message=".*google\\.generativeai.*",
+        category=FutureWarning,
+    )
+    import google.generativeai as genai
 
 from app.config import settings
 

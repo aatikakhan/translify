@@ -43,12 +43,18 @@ def current_user(request: Request, db: Session) -> User | None:
 def home(request: Request):
     if settings.auth_disabled or request.session.get("user_id"):
         return RedirectResponse(url="/dashboard", status_code=302)
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(
+        request=request, name="index.html", context={"request": request}
+    )
 
 
 @router.get("/register")
 def register_page(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request, "error": ""})
+    return templates.TemplateResponse(
+        request=request,
+        name="register.html",
+        context={"request": request, "error": ""},
+    )
 
 
 @router.post("/register")
@@ -63,14 +69,16 @@ def register(
     email = email.strip().lower()
     if len(full_name) < 2 or len(password) < 6:
         return templates.TemplateResponse(
-            "register.html",
-            {"request": request, "error": "Invalid name or password length."},
+            request=request,
+            name="register.html",
+            context={"request": request, "error": "Invalid name or password length."},
         )
 
     if get_user_by_email(db, email):
         return templates.TemplateResponse(
-            "register.html",
-            {"request": request, "error": "Email already exists."},
+            request=request,
+            name="register.html",
+            context={"request": request, "error": "Email already exists."},
         )
 
     user = User(
@@ -87,7 +95,9 @@ def register(
 
 @router.get("/login")
 def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request, "error": ""})
+    return templates.TemplateResponse(
+        request=request, name="login.html", context={"request": request, "error": ""}
+    )
 
 
 @router.post("/login")
@@ -100,7 +110,9 @@ def login(
     user = get_user_by_email(db, email)
     if not user or not verify_password(password, user.password_hash):
         return templates.TemplateResponse(
-            "login.html", {"request": request, "error": "Invalid email or password."}
+            request=request,
+            name="login.html",
+            context={"request": request, "error": "Invalid email or password."},
         )
 
     request.session["user_id"] = user.id
@@ -127,8 +139,15 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
     )
 
     return templates.TemplateResponse(
-        "dashboard.html",
-        {"request": request, "user": user, "documents": documents, "error": "", "success": ""},
+        request=request,
+        name="dashboard.html",
+        context={
+            "request": request,
+            "user": user,
+            "documents": documents,
+            "error": "",
+            "success": "",
+        },
     )
 
 
@@ -151,8 +170,9 @@ async def translate_pdf(
             .all()
         )
         return templates.TemplateResponse(
-            "dashboard.html",
-            {
+            request=request,
+            name="dashboard.html",
+            context={
                 "request": request,
                 "user": user,
                 "documents": documents,
